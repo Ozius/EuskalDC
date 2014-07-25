@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+
+import com.dd.processbutton.iml.ActionProcessButton;
+import com.iangclifton.android.floatlabel.FloatLabel;
+import com.squareup.otto.Subscribe;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,7 +20,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -29,8 +31,10 @@ import gnu.crypto.hash.IMessageDigest;
 
 
 public class MyActivity extends Activity {
-    private TextView mText;
-    private Button mButton;
+    private FloatLabel floatLabelServidor;
+    private FloatLabel floatLabelPuerto;
+    private FloatLabel floatLabelNick;
+    private ActionProcessButton btnSignIn;
 
     public static final String LOGTAG = MyActivity.class.getName();
 
@@ -41,13 +45,17 @@ public class MyActivity extends Activity {
 
         startService(new Intent(this, AdcService.class));
 
-        //mText = (TextView) findViewById(R.id.textView);
-        mButton = (Button) findViewById(R.id.button);
+        floatLabelServidor = (FloatLabel) findViewById(R.id.float_label_servidor);
+        floatLabelPuerto = (FloatLabel) findViewById(R.id.float_label_puerto);
+        floatLabelNick = (FloatLabel) findViewById(R.id.float_label_nick);
+
+        floatLabelPuerto.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        btnSignIn = (ActionProcessButton) findViewById(R.id.button);
+        btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
 
         // Register self with the only bus that we're using
         BusProvider.getInstance().register(this);
-
-        //new DownloadFilesTask().execute();
     }
 
     @Override
@@ -61,112 +69,6 @@ public class MyActivity extends Activity {
         // Let's kill the service with a bus message when we kill the activity
         BusProvider.getInstance().post(new KillService());
         super.onDestroy();
-    }
-
-    private class DownloadFilesTask extends AsyncTask<Void, Void, Void> {
-        protected Void doInBackground(Void... urls) {
-            try
-            {
-                //Mo 1 client socket den server voi so cong va dia chi xac dinh
-                TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
-
-                    }
-
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
-
-                    }
-
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[] {};
-                    }
-
-                } };
-
-                SSLContext sc = SSLContext.getInstance("TLS");
-                sc.init(null, trustAllCerts, null);
-
-                SSLSocket sslsocket = (SSLSocket) sc.getSocketFactory().createSocket("dc.p2plibre.es", 2780);
-                //sslsocket.setUseClientMode(true);
-                //sslsocket.setNeedClientAuth(false);
-                //sslsocket.setWantClientAuth(false);
-
-                //Tao luong nhan va gui du lieu len server
-                DataOutputStream os=new DataOutputStream(sslsocket.getOutputStream());
-                DataInputStream is=new DataInputStream(sslsocket.getInputStream());
-
-                //Gui du lieu len server
-                String str="HSUP ADBASE ADTIGR\n";
-                os.writeBytes(str);
-
-                //Nhan du lieu da qua xu li tu server ve
-                String responseStr;
-                String sid = "";
-
-                //pid
-                byte[] data = null;
-
-                IMessageDigest md = HashFactory.getInstance("Tiger");
-                Base32 base32 = new Base32();
-
-                data = ("EuskalDC++ASDFGHJKLPOIUX").getBytes();
-                Log.d(LOGTAG, "" + data.length);
-
-                String pid = base32.encodeBytes(data).substring(0, 39);
-                Log.d(LOGTAG, "PID: " + pid);
-
-                //cid
-                md.update(data, 0, data.length);
-
-                String cid = base32.encodeBytes(md.digest()).substring(0, 39);
-                Log.d(LOGTAG, "CID: " + cid);
-
-                while((responseStr=is.readLine()) != null){
-                    if(responseStr.indexOf("ISID") != -1){
-                        sid = responseStr.substring(5);
-                        break;
-                    }
-
-                    Log.d(LOGTAG, responseStr);
-                }
-
-                Log.d(LOGTAG, "SID: " + sid);
-
-                str = "BINF " + sid + " ID" + cid + " PD" + pid + " NIOzius SL5\n";
-                os.writeBytes(str);
-
-                while((responseStr=is.readLine()) != null){
-                    Log.d(LOGTAG, responseStr);
-                }
-
-                os.close();
-                is.close();
-                sslsocket.close();
-            }
-            catch(UnknownHostException e)
-            {
-                e.printStackTrace();
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        protected void onProgressUpdate(Integer... progress) {
-
-        }
-
-        protected void onPostExecute() {
-
-        }
     }
 
     @Override
@@ -189,6 +91,13 @@ public class MyActivity extends Activity {
     }
 
     public void conectar(View v){
-        BusProvider.getInstance().post(new ButtonEvent());
+        btnSignIn.setProgress(1);
+        BusProvider.getInstance().post(new ConnectEvent(floatLabelServidor.getEditText().getText().toString(), Integer.valueOf(floatLabelPuerto.getEditText().getText().toString()), floatLabelNick.getEditText().getText().toString()));
+    }
+
+    @Subscribe
+    public void connectedToHub(Connected event) {
+        //btnSignIn.set
+
     }
 }

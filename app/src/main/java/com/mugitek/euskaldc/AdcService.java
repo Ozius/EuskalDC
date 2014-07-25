@@ -39,7 +39,7 @@ public class AdcService extends Service {
     }
 
     @Subscribe
-    public void buttonPress(ButtonEvent event) {
-        Toast.makeText(this, "Service called", Toast.LENGTH_SHORT).show();
+    public void buttonPress(ConnectEvent event) {
+        Log.d(TAG, "conectando...\n" + event.getServer() + "\n" + event.getPuerto() + "\n" + event.getNick());
     }
 }
