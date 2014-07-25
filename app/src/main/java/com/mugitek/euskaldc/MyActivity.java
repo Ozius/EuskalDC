@@ -11,8 +11,8 @@ import android.view.View;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.iangclifton.android.floatlabel.FloatLabel;
 import com.mugitek.euskaldc.eventos.ConnectEvent;
-import com.mugitek.euskaldc.eventos.Connected;
-import com.mugitek.euskaldc.eventos.KillService;
+import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.squareup.otto.Subscribe;
 
 
@@ -53,7 +53,7 @@ public class MyActivity extends Activity {
     @Override
     public void onDestroy() {
         // Let's kill the service with a bus message when we kill the activity
-        BusProvider.getInstance().post(new KillService());
+        BusProvider.getInstance().post(new KillServiceEvent());
         super.onDestroy();
     }
 
@@ -82,8 +82,8 @@ public class MyActivity extends Activity {
     }
 
     @Subscribe
-    public void connectedToHub(Connected event) {
-        //btnSignIn.set
+    public void connectedToHub(ConnectedEvent event) {
+        btnSignIn.setProgress(100);
 
     }
 }

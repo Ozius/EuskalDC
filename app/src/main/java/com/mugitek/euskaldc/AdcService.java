@@ -6,7 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.mugitek.euskaldc.eventos.ConnectEvent;
-import com.mugitek.euskaldc.eventos.KillService;
+import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.squareup.otto.Subscribe;
 
 public class AdcService extends Service {
@@ -35,12 +36,13 @@ public class AdcService extends Service {
 
     // Use bus to kill the service
     @Subscribe
-    public void killService(KillService event) {
+    public void killService(KillServiceEvent event) {
         onDestroy();
     }
 
     @Subscribe
     public void buttonPress(ConnectEvent event) {
         Log.d(TAG, "conectando...\n" + event.getServer() + "\n" + event.getPuerto() + "\n" + event.getNick());
+        BusProvider.getInstance().post(new ConnectedEvent());
     }
 }
