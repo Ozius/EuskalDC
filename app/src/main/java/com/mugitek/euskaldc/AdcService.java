@@ -4,8 +4,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.mugitek.euskaldc.eventos.ConnectEvent;
+import com.mugitek.euskaldc.eventos.KillService;
 import com.squareup.otto.Subscribe;
 
 public class AdcService extends Service {

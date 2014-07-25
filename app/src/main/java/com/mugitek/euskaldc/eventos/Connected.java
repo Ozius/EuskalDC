@@ -1,4 +1,4 @@
-package com.mugitek.euskaldc;
+package com.mugitek.euskaldc.eventos;
 
 /**
  * Created by Arkaitz on 25/07/2014.

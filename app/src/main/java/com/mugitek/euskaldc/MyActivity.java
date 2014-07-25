@@ -2,32 +2,18 @@ package com.mugitek.euskaldc;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.iangclifton.android.floatlabel.FloatLabel;
+import com.mugitek.euskaldc.eventos.ConnectEvent;
+import com.mugitek.euskaldc.eventos.Connected;
+import com.mugitek.euskaldc.eventos.KillService;
 import com.squareup.otto.Subscribe;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import gnu.crypto.hash.HashFactory;
-import gnu.crypto.hash.IMessageDigest;
 
 
 public class MyActivity extends Activity {
