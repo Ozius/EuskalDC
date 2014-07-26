@@ -9,8 +9,10 @@ import android.widget.Toast;
 import com.mugitek.euskaldc.adc.AdcUtils;
 import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.ConnectionErrorEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.mugitek.euskaldc.adc.AdcCommands;
+import com.mugitek.euskaldc.eventos.NewMessageEvent;
 import com.mugitek.euskaldc.eventos.SendMessageEvent;
 import com.mugitek.euskaldc.eventos.UserLoginEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
@@ -19,6 +21,7 @@ import com.squareup.otto.Subscribe;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.ssl.SSLContext;
@@ -32,6 +35,7 @@ import gnu.crypto.hash.IMessageDigest;
 public class AdcService extends Service {
     static final String TAG = "AdcService";
     private boolean isRunning = false;
+    private String sid = null;
     private DataInputStream dataInputStream = null;
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
@@ -104,7 +108,7 @@ public class AdcService extends Service {
                     AdcService.this.dataInputStream = dataInputStream;
                     AdcService.this.dataOutputStream.writeBytes(AdcCommands.ADC_WRITE_CONNECTION_START);
                     String responseString;
-                    String sid = null;
+                    sid = null;
                     while ((responseString = dataInputStream.readLine()) != null) {
                         if(responseString.indexOf(AdcCommands.ADC_READ_ISID) != -1) {
                             sid = responseString.substring(AdcCommands.ADC_READ_ISID.length()+1);
@@ -113,12 +117,14 @@ public class AdcService extends Service {
                     }
                     // Si el servicio ha devuelto un identificador, le enviaremos nuestras credenciales
                     if(sid != null) {
+                        long ss = (((long)1024)*((long)1024)*((long)1024)*((long)100));
                         String message = AdcCommands.ADC_WRITE_SEND_CLIENT_DATA;
                         message = message.replace("{0}", sid);
                         message = message.replace("{1}", cid);
                         message = message.replace("{2}",pid);
                         message = message.replace("{3}",connectEvent.getNick());
                         message = message.replace("{4}","5");
+                        message = message.replace("{5}","" + ss);
                         Log.d(TAG, message);
                         dataOutputStream.writeBytes(message);
                         while ((responseString = dataInputStream.readLine()) != null && isRunning ) {
@@ -145,12 +151,17 @@ public class AdcService extends Service {
                                 String messageSid = AdcUtils.getSidFromMessage(responseString);
                                 String messageText = AdcUtils.getUserMessageTextFromMessage(responseString);
                                 BusProvider.getInstance().post(new SendMessageEvent(messageSid,messageText));
+                            } else if (responseString.startsWith(AdcCommands.ADC_READ_STA)) {
+                                int errorCode = AdcUtils.getErrorCodeFromMessage(responseString);
+                                String errorMessage = AdcUtils.getErrorDescriptionFromMessage(responseString);
+                                BusProvider.getInstance().post(new ConnectionErrorEvent(errorCode, errorMessage));
                             }
                             Log.d(TAG, responseString);
                         }
                     }
                     dataInputStream.close();
                     dataOutputStream.close();
+                    sid = null;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -158,5 +169,27 @@ public class AdcService extends Service {
         });
         socketInitializatorAndReader.start();
 
+    }
+
+    @Subscribe
+    public void newMessage(final NewMessageEvent newMessageEvent) {
+        Thread writeMessageThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(sid != null) {
+                    String toPublicText = newMessageEvent.getMensaje().replaceAll(" ","\\\\s");
+                    toPublicText = toPublicText.replace("\n","\\n");
+                    String message = AdcCommands.ADC_WRITE_SEND_PUBLIC_MESSAGE;
+                    message = message.replace("{0}", sid);
+                    message = message.replace("{1}", toPublicText);
+                    try {
+                        AdcService.this.dataOutputStream.writeBytes(message);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+        writeMessageThread.start();
     }
 }

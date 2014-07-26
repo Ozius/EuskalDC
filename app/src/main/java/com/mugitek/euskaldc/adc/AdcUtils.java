@@ -4,6 +4,22 @@ package com.mugitek.euskaldc.adc;
  * Created by Neiru on 26/07/2014.
  */
 public class AdcUtils {
+
+    public static int getErrorCodeFromMessage(String message) {
+        String errorCode = getTextFromMessage(message, AdcCommands.ADC_READ_STA+" ");
+        if(errorCode != null && errorCode!="") {
+            return Integer.parseInt(errorCode);
+        }
+        return -1;
+    }
+
+    public static String getErrorDescriptionFromMessage(String message) {
+        String text = message.substring(8).trim();
+        text = text.replaceAll("\\\\s"," ");
+        text = text.replace("\\\\n","\n");
+        return text;
+    }
+
     public static String getSidFromMessage(String message) {
         return message.substring(5,9);
     }
@@ -24,22 +40,32 @@ public class AdcUtils {
             return new Long(0);
         }
     }
-    public static String getHubMessage(String message) {
+    public static String getHubMessage(final String message) {
         if(message != null && message.length() > 5) {
-            String returnMessage = message.substring(5);
-            String a = "Lkjlkj";
-            returnMessage = returnMessage.replaceAll("\\s"," ");
-            a = a+ "Lkjlkjadfl daj aklj";
-            return returnMessage;
+            try {
+                String returnMessage = new String(message.substring(5).getBytes(), "UTF-8");
+                ;
+                returnMessage = returnMessage.replaceAll("\\\\s", " ");
+                returnMessage = returnMessage.replaceAll("\\\\n", "\n");
+                return returnMessage;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else {
             return "";
         }
     }
     public static String getUserMessageTextFromMessage(String message) {
         if(message != null && message.length() > 10) {
-            String returnMessage = message.substring(10);
-            returnMessage = returnMessage.replaceAll("\\s"," ");
-            return returnMessage;
+            try {
+                String returnMessage = new String(message.substring(10).getBytes(), "UTF-8");
+                ;
+                returnMessage = returnMessage.replaceAll("\\\\s", " ");
+                returnMessage = returnMessage.replaceAll("\\\\n", "\n");
+                return returnMessage;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } else {
             return "";
         }

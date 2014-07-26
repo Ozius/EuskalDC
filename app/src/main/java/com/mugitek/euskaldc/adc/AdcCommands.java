@@ -5,8 +5,10 @@ package com.mugitek.euskaldc.adc;
  */
 public class AdcCommands {
     public static final String ADC_WRITE_CONNECTION_START = "HSUP ADBASE ADTIGR\n";
-    public static final String ADC_WRITE_SEND_CLIENT_DATA = "BINF {0} ID{1} PD{2} NI{3} SL{4}\n";
+    public static final String ADC_WRITE_SEND_CLIENT_DATA = "BINF {0} ID{1} PD{2} NI{3} SL{4} SS{5}\n";
+    public static final String ADC_WRITE_SEND_PUBLIC_MESSAGE = "BMSG {0} {1}\n";
     public static final String ADC_READ_ISID = "ISID";
+    public static final String ADC_READ_STA = "ISTA";
     public static final String ADC_READ_BROADCAST_INFO = "BINF";
     public static final String ADC_READ_BROADCAST_MESSAGE = "BMSG";
     public static final String ADC_READ_HUB_MESSAGE = "IMSG";
