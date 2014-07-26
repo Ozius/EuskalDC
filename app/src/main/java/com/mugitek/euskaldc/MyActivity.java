@@ -85,5 +85,9 @@ public class MyActivity extends Activity {
     public void connectedToHub(ConnectedEvent event) {
         btnSignIn.setProgress(100);
 
+        Intent i = new Intent(this, ChatActivity.class);
+        i.putExtra("Titulo", "Nombre del HUB");
+
+        startActivity(i);
     }
 }

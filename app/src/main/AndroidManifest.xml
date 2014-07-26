@@ -24,6 +24,11 @@
             android:name=".AdcService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name=".ChatActivity"
+            android:label="@string/title_activity_chat" >
+        </activity>
     </application>
 
 </manifest>
