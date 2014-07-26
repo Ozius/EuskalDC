@@ -15,6 +15,7 @@ import com.mugitek.euskaldc.adc.AdcCommands;
 import com.mugitek.euskaldc.eventos.NewMessageEvent;
 import com.mugitek.euskaldc.eventos.SendMessageEvent;
 import com.mugitek.euskaldc.eventos.UserLoginEvent;
+import com.mugitek.euskaldc.eventos.UserLogoutEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
 import com.squareup.otto.Subscribe;
 
@@ -155,6 +156,14 @@ public class AdcService extends Service {
                                 int errorCode = AdcUtils.getErrorCodeFromMessage(responseString);
                                 String errorMessage = AdcUtils.getErrorDescriptionFromMessage(responseString);
                                 BusProvider.getInstance().post(new ConnectionErrorEvent(errorCode, errorMessage));
+                            } else if(responseString.startsWith(AdcCommands.ADC_READ_LOGOUT)) {
+                                //es una desconexión
+                                String disconnectedSid = AdcUtils.getDisconnectedSidFromMessage(responseString);
+                                if(disconnectedSid == sid) {
+                                    BusProvider.getInstance().post(new ConnectionErrorEvent(280, "Username occupied"));
+                                } else {
+                                    BusProvider.getInstance().post(new UserLogoutEvent(disconnectedSid));
+                                }
                             }
                             Log.d(TAG, responseString);
                         }

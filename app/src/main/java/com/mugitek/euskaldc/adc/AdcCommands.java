@@ -9,6 +9,7 @@ public class AdcCommands {
     public static final String ADC_WRITE_SEND_PUBLIC_MESSAGE = "BMSG {0} {1}\n";
     public static final String ADC_READ_ISID = "ISID";
     public static final String ADC_READ_STA = "ISTA";
+    public static final String ADC_READ_LOGOUT = "IQUI";
     public static final String ADC_READ_BROADCAST_INFO = "BINF";
     public static final String ADC_READ_BROADCAST_MESSAGE = "BMSG";
     public static final String ADC_READ_HUB_MESSAGE = "IMSG";
