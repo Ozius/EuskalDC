@@ -1,8 +1,10 @@
 package com.mugitek.euskaldc;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,11 +21,15 @@ import com.mugitek.euskaldc.eventos.UserLogoutEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
 import com.squareup.otto.Subscribe;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Calendar;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -37,7 +43,7 @@ public class AdcService extends Service {
     static final String TAG = "AdcService";
     private boolean isRunning = false;
     private String sid = null;
-    private DataInputStream dataInputStream = null;
+    private BufferedReader dataInputStream = null;
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
     public AdcService() {
@@ -85,7 +91,13 @@ public class AdcService extends Service {
                 boolean connected = false;
                 Base32 base32 = new Base32();
                 //TODO Esto es dependiente del dispositivo, habrá que generarlo una vez y guardarlo
-                data = ("NEIRU+DC++ASDFGHJKLPOIUX").getBytes();
+                TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+                String deviceId = telephonyManager.getDeviceId();
+                String sampleMac = "11:11:11:11:11:ab";
+                String currentTimeInMillis = "" + (Calendar.getInstance().getTimeInMillis());
+                String dataString = sampleMac + currentTimeInMillis.substring(currentTimeInMillis.length() - (24 - sampleMac.length()));
+//                (((+(Calendar.getInstance().getTimeInMillis()));
+                data = ("NEIRU+DC++ASDFGHJKLPOIUX").getBytes(); //md.digest(); //("NEIRU+DC++ASDFGHJKLPOIUX").getBytes();//
                 String pid = base32.encodeBytes(data).substring(0, 39);
                 //cid
                 IMessageDigest md = HashFactory.getInstance(Registry.TIGER_HASH);
@@ -105,10 +117,12 @@ public class AdcService extends Service {
                     }
                     DataOutputStream dataOutputStream = new DataOutputStream(AdcService.this.socket.getOutputStream());
                     AdcService.this.dataOutputStream = dataOutputStream;
-                    DataInputStream dataInputStream= new DataInputStream(AdcService.this.socket.getInputStream());
+                    BufferedReader dataInputStream= new BufferedReader(new InputStreamReader(AdcService.this.socket.getInputStream()));
                     AdcService.this.dataInputStream = dataInputStream;
                     AdcService.this.dataOutputStream.writeBytes(AdcCommands.ADC_WRITE_CONNECTION_START);
+                    StringBuilder responseStringBuilder = new StringBuilder();
                     String responseString;
+                    char responseChar;
                     sid = null;
                     while ((responseString = dataInputStream.readLine()) != null) {
                         if(responseString.indexOf(AdcCommands.ADC_READ_ISID) != -1) {

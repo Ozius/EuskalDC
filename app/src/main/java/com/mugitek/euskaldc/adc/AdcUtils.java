@@ -1,5 +1,9 @@
 package com.mugitek.euskaldc.adc;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+
 /**
  * Created by Neiru on 26/07/2014.
  */
@@ -45,8 +49,7 @@ public class AdcUtils {
     public static String getHubMessage(final String message) {
         if(message != null && message.length() > 5) {
             try {
-                String returnMessage = new String(message.substring(5).getBytes(), "UTF-8");
-                ;
+                String returnMessage = message.substring(5);
                 returnMessage = returnMessage.replaceAll("\\\\s", " ");
                 returnMessage = returnMessage.replaceAll("\\\\n", "\n");
                 return returnMessage;
@@ -60,8 +63,7 @@ public class AdcUtils {
     public static String getUserMessageTextFromMessage(String message) {
         if(message != null && message.length() > 10) {
             try {
-                String returnMessage = new String(message.substring(10).getBytes(), "UTF-8");
-                ;
+                String returnMessage = message.substring(10);
                 returnMessage = returnMessage.replaceAll("\\\\s", " ");
                 returnMessage = returnMessage.replaceAll("\\\\n", "\n");
                 return returnMessage;
