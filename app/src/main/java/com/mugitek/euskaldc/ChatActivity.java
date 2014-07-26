@@ -27,7 +27,7 @@ public class ChatActivity extends Activity
     private GeneralChatFragment mChatFragment;
 
     public static final String LOGTAG = "ChatActivity";
-    public ArrayList<User> mUsuarios = new ArrayList<User>();
+    public static final ArrayList<User> mUsuarios = new ArrayList<User>();
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -42,9 +42,13 @@ public class ChatActivity extends Activity
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
 
-        if(savedInstanceState != null)
+        Bundle extras = getIntent().getExtras();
+
+        if(extras != null)
+            mTitle = extras.getString("Titulo");
+        else if(savedInstanceState != null){
             mTitle = savedInstanceState.getString("Titulo");
-        else
+        } else
             mTitle = getTitle();
 
         setTitle(mTitle);
@@ -54,11 +58,15 @@ public class ChatActivity extends Activity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        mChatFragment = GeneralChatFragment.newInstance("", "");
+        mChatFragment = (GeneralChatFragment) getFragmentManager().findFragmentByTag("chat-general");
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.container, mChatFragment)
-                .commit();
+        if(mChatFragment == null) {
+            mChatFragment = GeneralChatFragment.newInstance("", "");
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, mChatFragment, "chat-general")
+                    .commit();
+        }
 
         BusProvider.getInstance().register(this);
     }
@@ -72,20 +80,6 @@ public class ChatActivity extends Activity
                 .commit();*/
     }
 
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
-    }
-
     public void restoreActionBar() {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -93,6 +87,12 @@ public class ChatActivity extends Activity
         actionBar.setTitle(mTitle);
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("Titulo", mTitle.toString());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -159,6 +159,7 @@ public class ChatActivity extends Activity
             }
         }
 
+        Log.d(LOGTAG, "nuevo mensaje recibido de " + nick);
         mChatFragment.escribirNuevoMensaje(new Mensaje(nick, event.getMessage()));
     }
 

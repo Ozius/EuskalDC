@@ -62,6 +62,7 @@ public class GeneralChatFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Retain this fragment across configuration changes.
         setRetainInstance(true);
 
         if (getArguments() != null) {

@@ -1,17 +1,18 @@
 package com.mugitek.euskaldc;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.mugitek.euskaldc.adc.AdcCommands;
 import com.mugitek.euskaldc.adc.AdcUtils;
 import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
 import com.mugitek.euskaldc.eventos.ConnectionErrorEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
-import com.mugitek.euskaldc.adc.AdcCommands;
 import com.mugitek.euskaldc.eventos.NewMessageEvent;
 import com.mugitek.euskaldc.eventos.SendMessageEvent;
 import com.mugitek.euskaldc.eventos.UserLoginEvent;
@@ -20,10 +21,13 @@ import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
 import com.squareup.otto.Subscribe;
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -68,6 +72,17 @@ public class AdcService extends Service {
         onDestroy();
     }
 
+    private static final String ALLOWED_CHARACTERS ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    private static String getRandomString(final int sizeOfRandomString)
+    {
+        final Random random=new Random();
+        final StringBuilder sb=new StringBuilder();
+        for(int i=0;i<sizeOfRandomString;++i)
+            sb.append(ALLOWED_CHARACTERS.charAt(random.nextInt(ALLOWED_CHARACTERS.length())));
+        return sb.toString();
+    }
+
     /**
      * Recive como parámetro el evento y se queda escuchando a
      * lo que llegue del servicio
@@ -86,6 +101,11 @@ public class AdcService extends Service {
                 Base32 base32 = new Base32();
                 //TODO Esto es dependiente del dispositivo, habrá que generarlo una vez y guardarlo
                 data = ("NEIRU+DC++ASDFGHJKLPOIUX").getBytes();
+                String random = getRandomString(24);
+                Log.d(TAG, "Random string: " + random);
+
+                //data = random.getBytes();
+
                 String pid = base32.encodeBytes(data).substring(0, 39);
                 //cid
                 IMessageDigest md = HashFactory.getInstance(Registry.TIGER_HASH);

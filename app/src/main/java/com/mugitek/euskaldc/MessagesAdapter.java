@@ -1,6 +1,8 @@
 package com.mugitek.euskaldc;
 
 import android.content.Context;
+import android.text.TextUtils;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,21 +48,30 @@ public class MessagesAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View view;
+        Mensaje m = messages.get(position);
 
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(
-                    R.layout.message_row_layout, null);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.message_row_layout, null);
         } else {
             view = convertView;
         }
 
         TextView text1 = (TextView) view.findViewById(R.id.textUser);
         TextView text2 = (TextView) view.findViewById(R.id.textMessage);
+        TextView text3 = (TextView) view.findViewById(R.id.textHora);
 
-        text1.setText(messages.get(position).getUser());
-        text2.setText("" + messages.get(position).getMensaje());
+        text1.setText(m.getUser());
+        text2.setText(m.getMensaje());
+        text3.setText("[" + m.getTime() + "]");
+
+        if(m.getUser().equalsIgnoreCase("")) {
+            text1.setVisibility(View.GONE);
+            text3.setVisibility(View.GONE);
+        } else {
+            text1.setVisibility(View.VISIBLE);
+            text3.setVisibility(View.VISIBLE);
+        }
 
         return view;
     }

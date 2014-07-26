@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="@dimen/activity_vertical_half_margin"
@@ -21,4 +21,45 @@
         android:autoLink="web"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-</LinearLayout>
+
+
+</LinearLayout>-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[01:32:23]"
+        android:id="@+id/textHora"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/gris" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Usuario"
+        android:id="@+id/textUser"
+        android:layout_marginLeft="4dp"
+        android:layout_toRightOf="@+id/textHora"
+        android:layout_toEndOf="@+id/textHora" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textMessage"
+        android:autoLink="web"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_below="@id/textUser"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+</RelativeLayout>

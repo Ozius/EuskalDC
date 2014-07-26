@@ -46,17 +46,25 @@ public class UsersAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View view;
+        User u = users.get(position);
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(
-                    android.R.layout.simple_list_item_single_choice, null);
+            view = inflater.inflate(R.layout.user_row_layout, null);
         } else {
             view = convertView;
         }
 
-        TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-        text1.setText(users.get(position).getNick());
+        TextView text1 = (TextView) view.findViewById(R.id.textUsuario);
+        TextView text2 = (TextView) view.findViewById(R.id.textUserDescription);
+
+        text1.setText(u.getNick());
+        text2.setText(u.getDescription());
+
+        if(u.getDescription() == null)
+            text2.setVisibility(View.GONE);
+        else
+            text2.setVisibility(View.VISIBLE);
 
         return view;
     }

@@ -29,6 +29,9 @@ public class User {
     }
 
     public String getDescription() {
-        return description;
+        if(description != null)
+            return description.replaceAll("\\\\s"," ");
+        else
+            return description;
     }
 }

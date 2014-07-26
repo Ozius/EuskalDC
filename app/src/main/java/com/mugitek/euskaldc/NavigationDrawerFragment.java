@@ -74,6 +74,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Retain this fragment across configuration changes.
         setRetainInstance(true);
 
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
