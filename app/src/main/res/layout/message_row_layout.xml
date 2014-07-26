@@ -18,6 +18,6 @@
         android:layout_height="wrap_content"
         android:text="New Text"
         android:id="@+id/textMessage"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </LinearLayout>

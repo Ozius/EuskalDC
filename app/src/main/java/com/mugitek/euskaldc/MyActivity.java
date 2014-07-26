@@ -12,6 +12,7 @@ import com.dd.processbutton.iml.ActionProcessButton;
 import com.iangclifton.android.floatlabel.FloatLabel;
 import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.ConnectionErrorEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.squareup.otto.Subscribe;
 
@@ -89,5 +90,10 @@ public class MyActivity extends Activity {
         i.putExtra("Titulo", "Nombre del HUB");
 
         startActivity(i);
+    }
+
+    @Subscribe
+    public void errorConnecting(ConnectionErrorEvent event) {
+
     }
 }
