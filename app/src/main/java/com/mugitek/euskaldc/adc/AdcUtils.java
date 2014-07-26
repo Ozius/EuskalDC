@@ -26,6 +26,11 @@ public class AdcUtils {
     public static String getDisconnectedSidFromMessage(String message) {
         return getTextFromMessage(message, AdcCommands.ADC_READ_LOGOUT+" ");
     }
+
+    public static String getRedirectUrlFromQuitMessage(String message) {
+        return getTextFromMessage(message, AdcCommands.ADC_READ_REDIRECT);
+    }
+
     public static String getSidFromMessage(String message) {
         return message.substring(5,9);
     }

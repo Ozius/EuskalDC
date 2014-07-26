@@ -15,6 +15,7 @@ public class AdcCommands {
     public static final String ADC_READ_HUB_MESSAGE = "IMSG";
     public static final String ADC_READ_CLIENTID =" ID";
     public static final String ADC_READ_NICK = " NI";
+    public static final String ADC_READ_REDIRECT = " RD";
     public static final String ADC_READ_DESCRIPTION = " DE";
     public static final String ADC_READ_SHAREDSIZE = " SS";
 

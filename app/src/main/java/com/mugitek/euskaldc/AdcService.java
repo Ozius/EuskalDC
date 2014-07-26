@@ -114,7 +114,7 @@ public class AdcService extends Service {
                 md.update(data, 0, data.length);
                 String cid = base32.encodeBytes(md.digest()).substring(0, 39);
                 //TODO Esto no siempre será ssl, hay que cambiar este boolean
-                boolean isSSL = true;
+                boolean isSSL = connectEvent.isSsl();
                 try {
                     if(isSSL) {
                         TrustManager[] trustAllCerts = new TrustManager[]{new AcceptAllX509TrustManager()};
@@ -124,6 +124,7 @@ public class AdcService extends Service {
                         AdcService.this.socket = sslsocket;
                     } else {
                         // TODO Hay que crear un socket normal
+                        AdcService.this.socket = new Socket(connectEvent.getServer(), connectEvent.getPuerto());
                     }
                     PrintWriter dataOutputStream = new PrintWriter(AdcService.this.socket.getOutputStream(),true);
                     AdcService.this.dataOutputStream = dataOutputStream;
@@ -183,8 +184,27 @@ public class AdcService extends Service {
                             } else if(responseString.startsWith(AdcCommands.ADC_READ_LOGOUT)) {
                                 //es una desconexión
                                 String disconnectedSid = AdcUtils.getDisconnectedSidFromMessage(responseString);
-                                if(disconnectedSid == sid) {
+                                if(disconnectedSid.equals(sid)) {
                                     BusProvider.getInstance().post(new ConnectionErrorEvent(280, "Username occupied"));
+                                    String redirectUrl = AdcUtils.getRedirectUrlFromQuitMessage(responseString);
+                                    if(redirectUrl != null) {
+                                        boolean isSsl = redirectUrl.startsWith("adcs://");
+                                        int protocolEndsIndex = redirectUrl.indexOf("://")+("://".length());
+                                        String urlWithoutProtocol = redirectUrl.substring(protocolEndsIndex);
+                                        int portPointsIndex = urlWithoutProtocol.indexOf(":");
+                                        String host = urlWithoutProtocol.substring(0, portPointsIndex);
+                                        int lastSlashIndex = urlWithoutProtocol.indexOf("/");
+                                        String port = "";
+                                        if(lastSlashIndex>-1) {
+                                            port = urlWithoutProtocol.substring(portPointsIndex+1, lastSlashIndex);
+                                        } else {
+                                            port = urlWithoutProtocol.substring(portPointsIndex+1);
+                                        }
+                                        ConnectEvent connectEvent1 = new ConnectEvent(host, Integer.parseInt(port), connectEvent.getNick());
+                                        connectEvent1.setIsSsl(isSsl);
+                                        BusProvider.getInstance().post(connectEvent1);
+                                    }
+                                    isRunning = false;
                                 } else {
                                     BusProvider.getInstance().post(new UserLogoutEvent(disconnectedSid));
                                 }
