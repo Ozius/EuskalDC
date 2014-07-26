@@ -6,8 +6,8 @@ package com.mugitek.euskaldc.adc;
 public class AdcUtils {
 
     public static int getErrorCodeFromMessage(String message) {
-        String errorCode = getTextFromMessage(message, AdcCommands.ADC_READ_STA);
-        if(errorCode != null) {
+        String errorCode = getTextFromMessage(message, AdcCommands.ADC_READ_STA+" ");
+        if(errorCode != null && errorCode!="") {
             return Integer.parseInt(errorCode);
         }
         return -1;

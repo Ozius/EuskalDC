@@ -123,6 +123,7 @@ public class AdcService extends Service {
                         message = message.replace("{2}",pid);
                         message = message.replace("{3}",connectEvent.getNick());
                         message = message.replace("{4}","5");
+                        message = message.replace("{5}","" + (1024*1024*1024*100));
                         Log.d(TAG, message);
                         dataOutputStream.writeBytes(message);
                         while ((responseString = dataInputStream.readLine()) != null && isRunning ) {
