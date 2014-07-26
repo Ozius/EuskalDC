@@ -4,6 +4,22 @@ package com.mugitek.euskaldc.adc;
  * Created by Neiru on 26/07/2014.
  */
 public class AdcUtils {
+
+    public static int getErrorCodeFromMessage(String message) {
+        String errorCode = getTextFromMessage(message, AdcCommands.ADC_READ_STA);
+        if(errorCode != null) {
+            return Integer.parseInt(errorCode);
+        }
+        return -1;
+    }
+
+    public static String getErrorDescriptionFromMessage(String message) {
+        String text = message.substring(8).trim();
+        text = text.replaceAll("\\\\s"," ");
+        text = text.replace("\\\\n","\n");
+        return text;
+    }
+
     public static String getSidFromMessage(String message) {
         return message.substring(5,9);
     }

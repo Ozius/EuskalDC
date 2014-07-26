@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.mugitek.euskaldc.adc.AdcUtils;
 import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.ConnectionErrorEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.mugitek.euskaldc.adc.AdcCommands;
 import com.mugitek.euskaldc.eventos.NewMessageEvent;
@@ -148,6 +149,10 @@ public class AdcService extends Service {
                                 String messageSid = AdcUtils.getSidFromMessage(responseString);
                                 String messageText = AdcUtils.getUserMessageTextFromMessage(responseString);
                                 BusProvider.getInstance().post(new SendMessageEvent(messageSid,messageText));
+                            } else if (responseString.startsWith(AdcCommands.ADC_READ_STA)) {
+                                int errorCode = AdcUtils.getErrorCodeFromMessage(responseString);
+                                String errorMessage = AdcUtils.getErrorDescriptionFromMessage(responseString);
+                                BusProvider.getInstance().post(new ConnectionErrorEvent(errorCode, errorMessage));
                             }
                             Log.d(TAG, responseString);
                         }
@@ -165,13 +170,16 @@ public class AdcService extends Service {
     }
 
     @Subscribe
-    public void newMessage(NewMessageEvent newMessageEvent) {
+    public void newMessage(final NewMessageEvent newMessageEvent) {
         Thread writeMessageThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 if(sid != null) {
+                    String toPublicText = newMessageEvent.getMensaje().replaceAll(" ","\\\\s");
+                    toPublicText = toPublicText.replace("\n","\\n");
                     String message = AdcCommands.ADC_WRITE_SEND_PUBLIC_MESSAGE;
                     message = message.replace("{0}", sid);
+                    message = message.replace("{1}", toPublicText);
                     try {
                         AdcService.this.dataOutputStream.writeBytes(message);
                     } catch (IOException e) {
@@ -180,5 +188,6 @@ public class AdcService extends Service {
                 }
             }
         });
+        writeMessageThread.start();
     }
 }
