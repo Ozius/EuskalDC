@@ -135,7 +135,14 @@ public class ChatActivity extends Activity
 
     @Subscribe
     public void userLogout(UserLogoutEvent event) {
-
+        //Buscamos el usuario con el id que se ha ido
+        for(User user : mUsuarios){
+            if(user.getSid().equalsIgnoreCase(event.getSid())){
+                mUsuarios.remove(user);
+                mNavigationDrawerFragment.actualizarListView();
+                break;
+            }
+        }
     }
 
     @Subscribe
