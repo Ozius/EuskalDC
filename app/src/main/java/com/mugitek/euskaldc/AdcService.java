@@ -117,13 +117,14 @@ public class AdcService extends Service {
                     }
                     // Si el servicio ha devuelto un identificador, le enviaremos nuestras credenciales
                     if(sid != null) {
+                        long ss = (((long)1024)*((long)1024)*((long)1024)*((long)100));
                         String message = AdcCommands.ADC_WRITE_SEND_CLIENT_DATA;
                         message = message.replace("{0}", sid);
                         message = message.replace("{1}", cid);
                         message = message.replace("{2}",pid);
                         message = message.replace("{3}",connectEvent.getNick());
                         message = message.replace("{4}","5");
-                        message = message.replace("{5}","" + (1024*1024*1024*100));
+                        message = message.replace("{5}","" + ss);
                         Log.d(TAG, message);
                         dataOutputStream.writeBytes(message);
                         while ((responseString = dataInputStream.readLine()) != null && isRunning ) {
