@@ -2,6 +2,7 @@ package com.mugitek.euskaldc;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Menu;
@@ -23,6 +24,10 @@ public class MyActivity extends Activity {
     private FloatLabel floatLabelNick;
     private ActionProcessButton btnSignIn;
 
+    private static final String SERVER_KEY = "server";
+    private static final String PORT_KEY = "port";
+    private static final String NICK_KEY = "nick";
+
     public static final String LOGTAG = MyActivity.class.getName();
 
     @Override
@@ -43,6 +48,13 @@ public class MyActivity extends Activity {
 
         // Register self with the only bus that we're using
         BusProvider.getInstance().register(this);
+
+        //Miramos si tenemos guardadas preferencias anteriores
+        SharedPreferences pref = getSharedPreferences("EuskalDCPrefs", MODE_PRIVATE);
+        floatLabelServidor.getEditText().setText(pref.getString(SERVER_KEY, ""));
+        floatLabelPuerto.getEditText().setText(pref.getString(PORT_KEY, "2780"));
+        floatLabelNick.getEditText().setText(pref.getString(NICK_KEY, ""));
+
     }
 
     @Override
@@ -79,6 +91,11 @@ public class MyActivity extends Activity {
 
     public void conectar(View v){
         btnSignIn.setProgress(1);
+
+        floatLabelServidor.getEditText().setEnabled(false);
+        floatLabelPuerto.getEditText().setEnabled(false);
+        floatLabelNick.getEditText().setEnabled(false);
+
         BusProvider.getInstance().post(new ConnectEvent(floatLabelServidor.getEditText().getText().toString(), Integer.valueOf(floatLabelPuerto.getEditText().getText().toString()), floatLabelNick.getEditText().getText().toString()));
     }
 
@@ -86,14 +103,35 @@ public class MyActivity extends Activity {
     public void connectedToHub(ConnectedEvent event) {
         btnSignIn.setProgress(100);
 
+        //Guardar el valor de los campos en las preferencias
+        SharedPreferences pref = getSharedPreferences("EuskalDCPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        editor.putString(SERVER_KEY, floatLabelServidor.getEditText().getText().toString());
+        editor.putString(PORT_KEY, floatLabelPuerto.getEditText().getText().toString());
+        editor.putString(NICK_KEY, floatLabelNick.getEditText().getText().toString());
+
+        editor.commit();
+
+        //Lanzamos el activity del chat
         Intent i = new Intent(this, ChatActivity.class);
+        //i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
         i.putExtra("Titulo", "Nombre del HUB");
 
         startActivity(i);
+        btnSignIn.setProgress(0);
+        //finish();
     }
 
     @Subscribe
     public void errorConnecting(ConnectionErrorEvent event) {
+        btnSignIn.setProgress(0);
+
+        floatLabelServidor.getEditText().setEnabled(true);
+        floatLabelPuerto.getEditText().setEnabled(true);
+        floatLabelNick.getEditText().setEnabled(true);
+
 
     }
 }
