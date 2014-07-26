@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.iangclifton.android.floatlabel.FloatLabel;
@@ -132,6 +133,6 @@ public class MyActivity extends Activity {
         floatLabelPuerto.getEditText().setEnabled(true);
         floatLabelNick.getEditText().setEnabled(true);
 
-
+        Toast.makeText(getApplicationContext(), event.getErrorMessage(), Toast.LENGTH_SHORT).show();
     }
 }
