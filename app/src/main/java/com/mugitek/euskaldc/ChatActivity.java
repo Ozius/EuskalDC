@@ -122,5 +122,7 @@ public class ChatActivity extends Activity
     @Subscribe
     public void newMessage(NewMessageEvent event) {
         Log.d(LOGTAG, "nuevo mensaje recibido");
+
+        mChatFragment.escribirNuevoMensaje(new Mensaje("", ""));
     }
 }

@@ -143,4 +143,7 @@ public class GeneralChatFragment extends ListFragment {
         public void onEnviarMensaje(String mensaje);
     }
 
+    public void escribirNuevoMensaje(Mensaje m){
+        mAdapter.addItem(m);
+    }
 }
