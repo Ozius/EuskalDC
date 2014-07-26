@@ -22,10 +22,10 @@ public class UsersAdapter extends BaseAdapter {
         this.users = users;
     }
 
-    public void addItem(User user){
+    /*public void addItem(User user){
         users.add(user);
         this.notifyDataSetChanged();
-    }
+    }*/
 
     @Override
     public int getCount() {

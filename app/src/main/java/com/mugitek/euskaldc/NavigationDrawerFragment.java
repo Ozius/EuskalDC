@@ -111,7 +111,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });*/
 
-        mAdapter = new UsersAdapter(getActivity(), new ArrayList<User>());
+        mAdapter = new UsersAdapter(getActivity(), ((ChatActivity)getActivity()).mUsuarios);
 
         mDrawerListView.setAdapter(mAdapter);
 
@@ -284,9 +284,13 @@ public class NavigationDrawerFragment extends Fragment {
         void onNavigationDrawerItemSelected(int position);
     }
 
-    @Subscribe
+    public void actualizarListView(){
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /*@Subscribe
     public void userLogged(UserLoginEvent event) {
         //Log.d(LOGTAG, "nuevo usuario: " + event.getNick());
         mAdapter.addItem(new User(event.getSid(), event.getCid(), event.getNick(), event.getDescription()));
-    }
+    }*/
 }

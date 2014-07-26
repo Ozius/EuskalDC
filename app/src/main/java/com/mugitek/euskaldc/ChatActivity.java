@@ -10,7 +10,11 @@ import android.view.MenuItem;
 
 import com.mugitek.euskaldc.eventos.NewMessageEvent;
 import com.mugitek.euskaldc.eventos.SendMessageEvent;
+import com.mugitek.euskaldc.eventos.UserLoginEvent;
+import com.mugitek.euskaldc.eventos.UserLogoutEvent;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
 
 
 public class ChatActivity extends Activity
@@ -23,6 +27,7 @@ public class ChatActivity extends Activity
     private GeneralChatFragment mChatFragment;
 
     public static final String LOGTAG = "ChatActivity";
+    public ArrayList<User> mUsuarios = new ArrayList<User>();
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -119,11 +124,35 @@ public class ChatActivity extends Activity
         //BusProvider.getInstance().post(new NewMessageEvent(mensaje));
     }
 
+
+    @Subscribe
+    public void userLogged(UserLoginEvent event) {
+        //Log.d(LOGTAG, "nuevo usuario: " + event.getNick());
+        //mAdapter.addItem(new User(event.getSid(), event.getCid(), event.getNick(), event.getDescription()));
+        mUsuarios.add(new User(event.getSid(), event.getCid(), event.getNick(), event.getDescription()));
+        mNavigationDrawerFragment.actualizarListView();
+    }
+
+    @Subscribe
+    public void userLogout(UserLogoutEvent event) {
+
+    }
+
     @Subscribe
     public void newMessage(SendMessageEvent event) {
         //Log.d(LOGTAG, "nuevo mensaje recibido");
+        String nick = "";
 
-        mChatFragment.escribirNuevoMensaje(new Mensaje(event.getUserSid(), event.getMessage()));
+        //Buscamos el nick del usuario que ha escrito
+        for(int i = 0; i < mUsuarios.size(); i++){
+            User u = mUsuarios.get(i);
+            if(u.getSid().equalsIgnoreCase(event.getUserSid())) {
+                nick = u.getNick();
+                break;
+            }
+        }
+
+        mChatFragment.escribirNuevoMensaje(new Mensaje(nick, event.getMessage()));
     }
 
 }
