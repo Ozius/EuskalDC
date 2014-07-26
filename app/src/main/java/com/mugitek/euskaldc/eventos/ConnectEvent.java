@@ -15,6 +15,11 @@ public class ConnectEvent {
         this.nick = nick;
     }
 
+    public ConnectEvent(String server, int puerto, String nick, boolean ssl) {
+        this(server, puerto, nick);
+        this.isSsl = ssl;
+    }
+
     public String getServer() {
         return server;
     }

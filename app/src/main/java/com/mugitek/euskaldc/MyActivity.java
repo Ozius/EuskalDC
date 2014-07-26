@@ -8,6 +8,7 @@ import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
@@ -24,10 +25,12 @@ public class MyActivity extends Activity {
     private FloatLabel floatLabelPuerto;
     private FloatLabel floatLabelNick;
     private ActionProcessButton btnSignIn;
+    private CheckBox mCheckSSL;
 
     private static final String SERVER_KEY = "server";
     private static final String PORT_KEY = "port";
     private static final String NICK_KEY = "nick";
+    private static final String SSL_KEY = "ssl";
 
     public static final String LOGTAG = MyActivity.class.getName();
 
@@ -41,6 +44,7 @@ public class MyActivity extends Activity {
         floatLabelServidor = (FloatLabel) findViewById(R.id.float_label_servidor);
         floatLabelPuerto = (FloatLabel) findViewById(R.id.float_label_puerto);
         floatLabelNick = (FloatLabel) findViewById(R.id.float_label_nick);
+        mCheckSSL = (CheckBox) findViewById(R.id.checkSSL);
 
         floatLabelPuerto.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
 
@@ -55,7 +59,7 @@ public class MyActivity extends Activity {
         floatLabelServidor.getEditText().setText(pref.getString(SERVER_KEY, ""));
         floatLabelPuerto.getEditText().setText(pref.getString(PORT_KEY, "2780"));
         floatLabelNick.getEditText().setText(pref.getString(NICK_KEY, ""));
-
+        mCheckSSL.setChecked(pref.getBoolean(SSL_KEY, true));
     }
 
     @Override
@@ -97,7 +101,7 @@ public class MyActivity extends Activity {
         floatLabelPuerto.getEditText().setEnabled(false);
         floatLabelNick.getEditText().setEnabled(false);
 
-        BusProvider.getInstance().post(new ConnectEvent(floatLabelServidor.getEditText().getText().toString(), Integer.valueOf(floatLabelPuerto.getEditText().getText().toString()), floatLabelNick.getEditText().getText().toString()));
+        BusProvider.getInstance().post(new ConnectEvent(floatLabelServidor.getEditText().getText().toString(), Integer.valueOf(floatLabelPuerto.getEditText().getText().toString()), floatLabelNick.getEditText().getText().toString(), mCheckSSL.isChecked()));
     }
 
     @Subscribe
@@ -111,6 +115,7 @@ public class MyActivity extends Activity {
         editor.putString(SERVER_KEY, floatLabelServidor.getEditText().getText().toString());
         editor.putString(PORT_KEY, floatLabelPuerto.getEditText().getText().toString());
         editor.putString(NICK_KEY, floatLabelNick.getEditText().getText().toString());
+        editor.putBoolean(SSL_KEY, mCheckSSL.isChecked());
 
         editor.commit();
 

@@ -60,13 +60,22 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Usar SSL"
+        android:id="@+id/checkSSL"
+        android:layout_below="@+id/float_label_puerto"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Datos del usuario"
         android:id="@+id/textHeaderUser"
         style="?android:attr/listSeparatorTextViewStyle"
-        android:layout_below="@+id/float_label_puerto"
+        android:layout_below="@+id/checkSSL"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -82,5 +91,7 @@
         android:layout_below="@+id/textHeaderUser"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+
 </RelativeLayout>
 </ScrollView>
