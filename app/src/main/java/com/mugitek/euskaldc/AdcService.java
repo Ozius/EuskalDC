@@ -28,6 +28,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Calendar;
 
@@ -44,7 +45,7 @@ public class AdcService extends Service {
     private boolean isRunning = false;
     private String sid = null;
     private BufferedReader dataInputStream = null;
-    private DataOutputStream dataOutputStream = null;
+    private PrintWriter dataOutputStream = null;
     private Socket socket = null;
     public AdcService() {
     }
@@ -70,6 +71,15 @@ public class AdcService extends Service {
     // Use bus to kill the service
     @Subscribe
     public void killService(KillServiceEvent event) {
+        /*
+        Thread infoExit = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String logoutMessage =
+                AdcService.this.dataOutputStream.writeBytes();
+            }
+        });
+        */
         isRunning = false;
         onDestroy();
     }
@@ -115,11 +125,11 @@ public class AdcService extends Service {
                     } else {
                         // TODO Hay que crear un socket normal
                     }
-                    DataOutputStream dataOutputStream = new DataOutputStream(AdcService.this.socket.getOutputStream());
+                    PrintWriter dataOutputStream = new PrintWriter(AdcService.this.socket.getOutputStream(),true);
                     AdcService.this.dataOutputStream = dataOutputStream;
                     BufferedReader dataInputStream= new BufferedReader(new InputStreamReader(AdcService.this.socket.getInputStream()));
                     AdcService.this.dataInputStream = dataInputStream;
-                    AdcService.this.dataOutputStream.writeBytes(AdcCommands.ADC_WRITE_CONNECTION_START);
+                    AdcService.this.dataOutputStream.println(AdcCommands.ADC_WRITE_CONNECTION_START);
                     StringBuilder responseStringBuilder = new StringBuilder();
                     String responseString;
                     char responseChar;
@@ -141,7 +151,7 @@ public class AdcService extends Service {
                         message = message.replace("{4}","5");
                         message = message.replace("{5}","" + ss);
                         Log.d(TAG, message);
-                        dataOutputStream.writeBytes(message);
+                        dataOutputStream.println(message);
                         while ((responseString = dataInputStream.readLine()) != null && isRunning ) {
                             if(responseString.startsWith(AdcCommands.ADC_READ_BROADCAST_INFO)) {
                                 if(!connected) {
@@ -200,14 +210,15 @@ public class AdcService extends Service {
             @Override
             public void run() {
                 if(sid != null) {
-                    String toPublicText = newMessageEvent.getMensaje().replaceAll(" ","\\\\s");
-                    toPublicText = toPublicText.replace("\n","\\n");
-                    String message = AdcCommands.ADC_WRITE_SEND_PUBLIC_MESSAGE;
-                    message = message.replace("{0}", sid);
-                    message = message.replace("{1}", toPublicText);
                     try {
-                        AdcService.this.dataOutputStream.writeBytes(message);
-                    } catch (IOException e) {
+                        String toPublicText = newMessageEvent.getMensaje();//new String(newMessageEvent.getMensaje().getBytes(),"UTF-8");
+                        toPublicText = toPublicText.replaceAll(" ","\\\\s");
+                        toPublicText = toPublicText.replace("\n","\\n");
+                        String message = AdcCommands.ADC_WRITE_SEND_PUBLIC_MESSAGE;
+                        message = message.replace("{0}", sid);
+                        message = message.replace("{1}", toPublicText);
+                        AdcService.this.dataOutputStream.println(message);
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
