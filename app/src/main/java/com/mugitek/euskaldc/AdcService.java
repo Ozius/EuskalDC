@@ -6,7 +6,12 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.mugitek.euskaldc.adc.AdcUtils;
+import com.mugitek.euskaldc.eventos.ConnectEvent;
+import com.mugitek.euskaldc.eventos.ConnectedEvent;
+import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.mugitek.euskaldc.adc.AdcCommands;
+import com.mugitek.euskaldc.eventos.UserLoginEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
 import com.squareup.otto.Subscribe;
 
@@ -52,7 +57,7 @@ public class AdcService extends Service {
 
     // Use bus to kill the service
     @Subscribe
-    public void killService(KillService event) {
+    public void killService(KillServiceEvent event) {
         isRunning = false;
         onDestroy();
     }
@@ -71,7 +76,7 @@ public class AdcService extends Service {
             @Override
             public void run() {
                 byte[] data = null;
-
+                boolean connected = false;
                 Base32 base32 = new Base32();
                 //TODO Esto es dependiente del dispositivo, habrá que generarlo una vez y guardarlo
                 data = ("NEIRU+DC++ASDFGHJKLPOIUX").getBytes();
@@ -116,6 +121,23 @@ public class AdcService extends Service {
                         Log.d(TAG, message);
                         dataOutputStream.writeBytes(message);
                         while ((responseString = dataInputStream.readLine()) != null && isRunning ) {
+                            if(responseString.startsWith(AdcCommands.ADC_READ_BROADCAST_INFO)) {
+                                if(!connected) {
+                                    connected = true;
+                                    BusProvider.getInstance().post(new ConnectedEvent());
+                                }
+                                int indexOfCid = responseString.indexOf(AdcCommands.ADC_READ_CLIENTID);
+                                if(indexOfCid > -1) {
+                                    // Vamos a suponer que se conecta un usuario
+                                    String userSid = responseString.substring(5,9);
+                                    String userCid = AdcUtils.getCidFromMessage(responseString);
+                                    String userNick = AdcUtils.getNickFromMessage(responseString);
+                                    String userDescription = AdcUtils.getDescriptionFromMessage(responseString);
+                                    UserLoginEvent userLoginEvent = new UserLoginEvent(userSid,userCid,userNick,userDescription);
+                                    userLoginEvent.setShared(AdcUtils.getSharedSizeInBytesFromMessage(responseString));
+                                    BusProvider.getInstance().post(userLoginEvent);
+                                }
+                            }
                             Log.d(TAG, responseString);
                         }
                     }
