@@ -11,6 +11,7 @@ import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.mugitek.euskaldc.adc.AdcCommands;
+import com.mugitek.euskaldc.eventos.SendMessageEvent;
 import com.mugitek.euskaldc.eventos.UserLoginEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
 import com.squareup.otto.Subscribe;
@@ -129,7 +130,7 @@ public class AdcService extends Service {
                                 int indexOfCid = responseString.indexOf(AdcCommands.ADC_READ_CLIENTID);
                                 if(indexOfCid > -1) {
                                     // Vamos a suponer que se conecta un usuario
-                                    String userSid = responseString.substring(5,9);
+                                    String userSid = AdcUtils.getSidFromMessage(responseString);
                                     String userCid = AdcUtils.getCidFromMessage(responseString);
                                     String userNick = AdcUtils.getNickFromMessage(responseString);
                                     String userDescription = AdcUtils.getDescriptionFromMessage(responseString);
@@ -137,6 +138,13 @@ public class AdcService extends Service {
                                     userLoginEvent.setShared(AdcUtils.getSharedSizeInBytesFromMessage(responseString));
                                     BusProvider.getInstance().post(userLoginEvent);
                                 }
+                            } else if(responseString.startsWith(AdcCommands.ADC_READ_HUB_MESSAGE)) {
+                                String messageText = AdcUtils.getHubMessage(responseString);
+                                BusProvider.getInstance().post(new SendMessageEvent(null,messageText));
+                            } else if(responseString.startsWith(AdcCommands.ADC_READ_BROADCAST_MESSAGE)) {
+                                String messageSid = AdcUtils.getSidFromMessage(responseString);
+                                String messageText = AdcUtils.getUserMessageTextFromMessage(responseString);
+                                BusProvider.getInstance().post(new SendMessageEvent(messageSid,messageText));
                             }
                             Log.d(TAG, responseString);
                         }
