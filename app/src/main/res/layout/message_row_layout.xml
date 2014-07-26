@@ -2,17 +2,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="@dimen/activity_vertical_half_margin"
+    android:paddingBottom="@dimen/activity_vertical_half_margin"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/textUser" />
+        android:id="@+id/textUser"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="New Text"
-        android:id="@+id/textMessage" />
+        android:id="@+id/textMessage"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
 </LinearLayout>

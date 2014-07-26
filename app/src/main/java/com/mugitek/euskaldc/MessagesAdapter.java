@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.TwoLineListItem;
+
+import java.util.ArrayList;
 
 /**
  * Created by Arkaitz on 26/07/2014.
@@ -14,21 +15,26 @@ import android.widget.TwoLineListItem;
 public class MessagesAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<Person> persons;
+    private ArrayList<Mensaje> messages;
 
-    public MessagesAdapter(Context context, ArrayList<Person> persons) {
+    public MessagesAdapter(Context context, ArrayList<Mensaje> messages) {
         this.context = context;
-        this.persons = persons;
+        this.messages = messages;
+    }
+
+    public void addItem(Mensaje mensaje){
+        messages.add(mensaje);
+        this.notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return persons.size();
+        return messages.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return persons.get(position);
+        return messages.get(position);
     }
 
     @Override
@@ -53,9 +59,9 @@ public class MessagesAdapter extends BaseAdapter {
         TextView text1 = (TextView) view.findViewById(R.id.textUser);
         TextView text2 = (TextView) view.findViewById(R.id.textMessage);
 
-        text1.setText(persons.get(position).getName());
-        text2.setText("" + persons.get(position).getAge());
+        text1.setText(messages.get(position).getUser());
+        text2.setText("" + messages.get(position).getMensaje());
 
-        return twoLineListItem;
+        return view;
     }
 }

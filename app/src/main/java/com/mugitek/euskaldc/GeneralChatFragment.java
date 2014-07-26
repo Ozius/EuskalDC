@@ -3,13 +3,18 @@ package com.mugitek.euskaldc;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.mugitek.euskaldc.dummy.DummyContent;
+
+import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
@@ -24,6 +29,10 @@ public class GeneralChatFragment extends ListFragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+    private MessagesAdapter mAdapter;
+    private EditText mNewMessage;
+    private ImageButton mNewMessageSend;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -57,14 +66,37 @@ public class GeneralChatFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        // TODO: Change Adapter to display your content
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS));
+        mAdapter = new MessagesAdapter(getActivity(), new ArrayList<Mensaje>());
+
+        setListAdapter(mAdapter);
+
+        mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba"));
+        mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba más largo."));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_general_chat, container, false);
+        View v = inflater.inflate(R.layout.fragment_general_chat, container, false);
+
+        mNewMessage = (EditText) v.findViewById(R.id.newmsg);
+        mNewMessageSend = (ImageButton) v.findViewById(R.id.newmsgsend);
+
+        mNewMessageSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendMessage();
+            }
+        });
+
+        return v;
+    }
+
+    private void sendMessage() {
+        if(!TextUtils.isEmpty(mNewMessage.getText().toString())){
+            mListener.onEnviarMensaje(mNewMessage.getText().toString());
+            mAdapter.addItem(new Mensaje("Ozius", mNewMessage.getText().toString()));
+            mNewMessage.setText("");
+        }
     }
 
     @Override
@@ -89,11 +121,11 @@ public class GeneralChatFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
-        if (null != mListener) {
+        /*if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
-        }
+        }*/
     }
 
     /**
@@ -108,7 +140,7 @@ public class GeneralChatFragment extends ListFragment {
     */
     public interface GeneralChatCallbacks {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(String id);
+        public void onEnviarMensaje(String mensaje);
     }
 
 }

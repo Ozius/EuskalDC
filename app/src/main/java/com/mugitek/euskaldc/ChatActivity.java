@@ -2,11 +2,15 @@ package com.mugitek.euskaldc;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.mugitek.euskaldc.eventos.NewMessageEvent;
+import com.mugitek.euskaldc.eventos.SendMessageEvent;
+import com.squareup.otto.Subscribe;
 
 
 public class ChatActivity extends Activity
@@ -16,6 +20,9 @@ public class ChatActivity extends Activity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private GeneralChatFragment mChatFragment;
+
+    public static final String LOGTAG = "ChatActivity";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -35,13 +42,17 @@ public class ChatActivity extends Activity
         else
             mTitle = getTitle();
 
+        setTitle(mTitle);
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        mChatFragment = GeneralChatFragment.newInstance("", "");
+
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, GeneralChatFragment.newInstance("", ""))
+                .replace(R.id.container, mChatFragment)
                 .commit();
 
         BusProvider.getInstance().register(this);
@@ -104,7 +115,12 @@ public class ChatActivity extends Activity
     }
 
     @Override
-    public void onFragmentInteraction(String id) {
+    public void onEnviarMensaje(String mensaje) {
+        BusProvider.getInstance().post(new SendMessageEvent(mensaje));
+    }
 
+    @Subscribe
+    public void newMessage(NewMessageEvent event) {
+        Log.d(LOGTAG, "nuevo mensaje recibido");
     }
 }
