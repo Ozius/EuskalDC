@@ -116,13 +116,14 @@ public class ChatActivity extends Activity
 
     @Override
     public void onEnviarMensaje(String mensaje) {
-        BusProvider.getInstance().post(new SendMessageEvent(mensaje));
+        //BusProvider.getInstance().post(new NewMessageEvent(mensaje));
     }
 
     @Subscribe
-    public void newMessage(NewMessageEvent event) {
-        Log.d(LOGTAG, "nuevo mensaje recibido");
+    public void newMessage(SendMessageEvent event) {
+        //Log.d(LOGTAG, "nuevo mensaje recibido");
 
-        mChatFragment.escribirNuevoMensaje(new Mensaje("", ""));
+        mChatFragment.escribirNuevoMensaje(new Mensaje(event.getUserSid(), event.getMessage()));
     }
+
 }

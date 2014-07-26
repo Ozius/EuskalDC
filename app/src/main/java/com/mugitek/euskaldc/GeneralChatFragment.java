@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.mugitek.euskaldc.dummy.DummyContent;
+import com.mugitek.euskaldc.eventos.NewMessageEvent;
 
 import java.util.ArrayList;
 
@@ -70,8 +71,8 @@ public class GeneralChatFragment extends ListFragment {
 
         setListAdapter(mAdapter);
 
-        mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba"));
-        mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba más largo."));
+        //mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba"));
+        //mAdapter.addItem(new Mensaje("Ozius", "mensaje de prueba más largo."));
     }
 
     @Override
@@ -93,8 +94,7 @@ public class GeneralChatFragment extends ListFragment {
 
     private void sendMessage() {
         if(!TextUtils.isEmpty(mNewMessage.getText().toString())){
-            mListener.onEnviarMensaje(mNewMessage.getText().toString());
-            mAdapter.addItem(new Mensaje("Ozius", mNewMessage.getText().toString()));
+            BusProvider.getInstance().post(new NewMessageEvent(mNewMessage.getText().toString()));
             mNewMessage.setText("");
         }
     }
