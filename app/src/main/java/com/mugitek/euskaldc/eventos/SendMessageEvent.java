@@ -1,5 +1,7 @@
 package com.mugitek.euskaldc.eventos;
 
+import java.nio.charset.Charset;
+
 /**
  * Created by Arkaitz on 26/07/2014.
  */

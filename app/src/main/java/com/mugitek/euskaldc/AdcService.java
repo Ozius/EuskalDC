@@ -11,6 +11,7 @@ import com.mugitek.euskaldc.eventos.ConnectEvent;
 import com.mugitek.euskaldc.eventos.ConnectedEvent;
 import com.mugitek.euskaldc.eventos.KillServiceEvent;
 import com.mugitek.euskaldc.adc.AdcCommands;
+import com.mugitek.euskaldc.eventos.NewMessageEvent;
 import com.mugitek.euskaldc.eventos.SendMessageEvent;
 import com.mugitek.euskaldc.eventos.UserLoginEvent;
 import com.mugitek.euskaldc.socket.AcceptAllX509TrustManager;
@@ -19,6 +20,7 @@ import com.squareup.otto.Subscribe;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.ssl.SSLContext;
@@ -32,6 +34,7 @@ import gnu.crypto.hash.IMessageDigest;
 public class AdcService extends Service {
     static final String TAG = "AdcService";
     private boolean isRunning = false;
+    private String sid = null;
     private DataInputStream dataInputStream = null;
     private DataOutputStream dataOutputStream = null;
     private Socket socket = null;
@@ -104,7 +107,7 @@ public class AdcService extends Service {
                     AdcService.this.dataInputStream = dataInputStream;
                     AdcService.this.dataOutputStream.writeBytes(AdcCommands.ADC_WRITE_CONNECTION_START);
                     String responseString;
-                    String sid = null;
+                    sid = null;
                     while ((responseString = dataInputStream.readLine()) != null) {
                         if(responseString.indexOf(AdcCommands.ADC_READ_ISID) != -1) {
                             sid = responseString.substring(AdcCommands.ADC_READ_ISID.length()+1);
@@ -151,6 +154,7 @@ public class AdcService extends Service {
                     }
                     dataInputStream.close();
                     dataOutputStream.close();
+                    sid = null;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -158,5 +162,23 @@ public class AdcService extends Service {
         });
         socketInitializatorAndReader.start();
 
+    }
+
+    @Subscribe
+    public void newMessage(NewMessageEvent newMessageEvent) {
+        Thread writeMessageThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(sid != null) {
+                    String message = AdcCommands.ADC_WRITE_SEND_PUBLIC_MESSAGE;
+                    message = message.replace("{0}", sid);
+                    try {
+                        AdcService.this.dataOutputStream.writeBytes(message);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
     }
 }
